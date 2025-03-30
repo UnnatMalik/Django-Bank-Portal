@@ -111,9 +111,17 @@ class BillPayment(models.Model):
 # This Python class defines a model called Supports with fields for name, email, and issue.
 class Supports(models.Model):
 
+    SUPPORT_STATUS = [
+        ('PENDING', 'Pending'),
+        ('RESOLVED', 'Resolved'),
+        ('CLOSED', 'Closed')
+    ]
+
     name = models.CharField(max_length=20,default="")
     email = models.EmailField(max_length=40)
     issue = models.CharField(max_length=300,default="")
-
+    timestamp = models.DateTimeField(default=timezone.now())
+    support_status = models.CharField(max_length=20,default="PENDING",choices=SUPPORT_STATUS)
+    
     def __str__(self):
         return self.name

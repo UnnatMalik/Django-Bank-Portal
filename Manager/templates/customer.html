@@ -1,0 +1,374 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Customer Details | CHD-BANK</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        body {
+            background: linear-gradient(135deg, #4a90e2, #7b5dfa);
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            padding: 20px;
+            min-height: 100vh;
+            font-family: Arial, sans-serif;
+        }
+
+        .customer-container {
+            background-color: #fff;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            width: 1200px;
+            padding: 30px;
+        }
+
+        .section-header {
+            background-color: #f8f9fa;
+            padding: 10px 15px;
+            border-radius: 5px;
+            margin-top: 20px;
+            margin-bottom: 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .section-header h3 {
+            color: #004080;
+            margin: 0;
+            font-size: 18px;
+        }
+
+        .loan-details-table {
+            width: 100%;
+        }
+
+        .loan-details-table th {
+            background-color: #f8f9fa;
+            color: #004080;
+        }
+
+        .status-badge {
+            padding: 5px 10px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: bold;
+        }
+
+        .status-active {
+            background-color: rgba(40, 167, 69, 0.1);
+            color: #28a745;
+        }
+
+        .status-pending {
+            background-color: rgba(255, 193, 7, 0.1);
+            color: #ffc107;
+        }
+
+        .status-closed {
+            background-color: rgba(220, 53, 69, 0.1);
+            color: #dc3545;
+        }
+
+        .loan-progress {
+            height: 10px;
+            background-color: #e9ecef;
+            border-radius: 5px;
+            overflow: hidden;
+        }
+
+        .loan-progress-bar {
+            height: 100%;
+            background-color: #4a90e2;
+            transition: width 0.5s ease;
+        }
+
+        .loan-card {
+            background-color: #f9f9f9;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 15px;
+            border-left: 4px solid 
+            {% if loan.loan_status == 'ACTIVE' %}#28a745
+            {% elif loan.loan_status == 'PENDING' %}#ffc107
+            {% else %}#dc3545
+            {% endif %};
+        }
+
+        .profile-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 30px;
+            border-bottom: 2px solid #f1f1f1;
+            padding-bottom: 20px;
+        }
+
+        .profile-avatar {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            object-fit: cover;
+            margin-right: 20px;
+            border: 4px solid #4a90e2;
+        }
+
+        .profile-details h2 {
+            color: #004080;
+            margin-bottom: 10px;
+        }
+
+        .info-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+
+        .info-card {
+            background-color: #f9f9f9;
+            border-radius: 8px;
+            padding: 15px;
+            border-left: 4px solid #4a90e2;
+        }
+
+        .info-card h4 {
+            color: #6c757d;
+            margin-bottom: 10px;
+            font-size: 14px;
+        }
+
+        .info-card p {
+            margin: 0;
+            font-weight: bold;
+            color: #004080;
+        }
+    </style>
+</head>
+<body>
+    <div class="customer-container">
+        <!-- Add Profile Header Section -->
+        {% load static %}
+        <div class="profile-header">
+            <img src="{% if User.image %}{{ User.image.url }}{% else %}{% static 'images/default-avatar.jpg' %}{% endif %}" 
+            alt="Customer Avatar" 
+            class="profile-avatar">
+            <div class="profile-details">
+                <h2>{{ User.user.get_full_name }}</h2>
+                <p>Account Number: {{ User.account_number }}</p>
+                <p>Email: {{ User.email }}</p>
+                <p>Joined: 21/10/2005</p>
+            </div>
+        </div>
+
+        <!-- Add Personal Information Section -->
+        <div class="section-header">
+            <h3>Personal Information</h3>
+        </div>
+        <div class="info-grid">
+            <div class="info-card">
+                <h4>Date of Birth</h4>
+                <p>{{ User.DoB }}</p>
+            </div>
+            <div class="info-card">
+                <h4>Phone Number</h4>
+                <p>{{ User.phone }}</p>
+            </div>
+            <div class="info-card">
+                <h4>Address</h4>
+                <p>{{ User.address }}</p>
+            </div>
+        </div>
+
+        <!-- Add Account Details Section -->
+        <div class="section-header">
+            <h3>Account Details</h3>
+        </div>
+        <div class="info-grid">
+            <div class="info-card">
+                <h4>Account Type</h4>
+                <p>{{ User.account_type }}</p>
+            </div>
+            <div class="info-card">
+                <h4>Balance</h4>
+                <p>₹ {{ User.balance }}</p>
+            </div>
+            <div class="info-card">
+                <h4>Account Status</h4>
+                <p>{{ user.account_status }}</p>
+            </div>
+            <div class="info-card">
+                <h4>Last Transaction</h4>
+                <p>{{ customer.last_transaction_date|date:"d M Y H:i" }}</p>
+            </div>
+        </div>
+
+        <div class="section-header">
+            <h3>Comprehensive Loan History</h3>
+            <div>
+                <button class="btn btn-sm btn-outline-primary">Export Loan Records</button>
+            </div>
+        </div>
+
+        <table class="table loan-details-table">
+            <thead>
+                <tr>
+                    <th>Loan ID</th>
+                    <th>Loan Type</th>
+                    <th>Amount</th>
+                    <th>Tenure</th>
+                    <th>Start Date</th>
+                    <th>Repayment Progress</th>
+                    <th>Status</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for loan in loans %}
+                <tr>
+                    <td>{{ loan.id }}</td>
+                    <td>{{ loan.loan_type }}</td>
+                    <td>₹ {{ loan.loan_amount }}</td>
+                    <td>{{ loan.loan_tenure }}yrs</td>
+                    <td>{{ loan.timestamp }}</td>
+                    <td>
+                        <div class="loan-progress">
+                            {% if loan.loan_status == 'REJECTED' %}
+                            <div 
+                                class="loan-progress-bar" 
+                                style="width: 100%"
+                                title="Loan Rejected"
+                            ></div>
+                        </div>
+                            <small>Rejected</small>
+                            {% else %}
+                                    <div 
+                                    class="loan-progress-bar" 
+                                    style="width: 4%"
+                                    title="{{ loan.repayment_progress }}% Repaid"
+                                ></div>
+                            </div>
+                            <small>0% Repaid</small>
+                            {% endif %}
+                    </td>
+                    <td>
+                        <span class="status-badge 
+                            {% if loan.loan_status == 'ACTIVE' %}status-active
+                            {% elif loan.loan_status == 'PENDING' %}status-pending
+                            {% else %}status-closed
+                            {% endif %}">
+                            {{ loan.loan_status }}
+                        </span>
+                    </td>
+                    <td>
+                        <div class="btn-group btn-group-sm" role="group">
+                            <button class="btn btn-outline-primary">Details</button>
+                            {% if loan.loan_status == 'ACTIVE' %}
+                            <button class="btn btn-outline-success">Make Payment</button>
+                            {% endif %}
+                        </div>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+
+        <div class="section-header">
+            <h3>Loan Summaries</h3>
+        </div>
+
+        <div class="row">
+            <div class="col-md-4">
+                <div class="loan-card">
+                    <h4>Total Loans</h4>
+                    <p class="h3">{{ total_loans }}</p>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="loan-card">
+                    <h4>Total Loan Amount</h4>
+                    <p class="h3">₹ {{ total_loan_amount }}</p>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="loan-card">
+                    <h4>Remaining Loan Balance</h4>
+                    <p class="h3">₹ {{ total_loan_amount }}</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Detailed Loan Breakdown -->
+        {% for loan in loans %}
+        <div class="section-header mt-4">
+            <h3>{{ loan.loan_type }} Loan Details</h3>
+        </div>
+        <div class="row">
+            <div class="col-md-6">
+                <div class="loan-card">
+                    <h4>Loan Specifics</h4>
+                    <p><strong>Loan ID:</strong> {{ loan.id }}</p>
+                    <p><strong>Loan Type:</strong> {{ loan.loan_type }}</p>
+                    <p><strong>Loan Amount:</strong> ₹ {{ loan.loan_amount }}</p>
+                    <p><strong>Loan duration:</strong> {{ loan.loan_tenure }}yrs</p>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="loan-card">
+                    <h4>Repayment Details</h4>
+                    <p><strong>Loan Term:</strong> {{ loan.loan_term }} months</p>
+                    <p><strong>Monthly Installment:</strong> ₹ {{ loan.monthly_installment }}</p>
+                    <p><strong>Next Payment Due:</strong> {{ loan.next_payment_date }}</p>
+                    <p><strong>Remaining Balance:</strong> ₹ {{ loan.remaining_balance }}</p>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+
+        <!-- Add Recent Transactions Section -->
+        <div class="section-header">
+            <h3>Recent Transactions</h3>
+            <button class="btn btn-sm btn-outline-primary">View All</button>
+        </div>
+        <table class="table transactions-table">
+            <thead>
+                <tr>
+                    <th>Date</th>
+                    <th>Type</th>
+                    <th>Description</th>
+                    <th>Amount</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for transaction in transactions %}
+                <tr>
+                    <td>{{ transaction.timestamp|date:"d M Y H:i" }}</td>
+                    <td>{{ transaction.transaction_type }}</td>
+                    <td>{{ transaction.about }}</td>
+                    <td>₹ {{ transaction.amount }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+
+        <!-- Add Action Buttons -->
+        <div class="action-buttons">
+            <button class="btn btn-primary">Edit Profile</button>
+            <button class="btn btn-warning">Manage Account</button>
+            <button class="btn btn-danger">Block Account</button>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
+
+
+
+
+
+
+
+

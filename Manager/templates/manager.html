@@ -162,6 +162,13 @@
             align-items: center;
             justify-content: center;
             box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .sidebar-toggle.hidden {
+            opacity: 0;
+            visibility: hidden;
         }
 
         .hamburger {
@@ -471,16 +478,10 @@
             <img src="https://clipartcraft.com/images/bank-logo-icon-9.png" alt="CHD-BANK Logo">
             <span>CHD Bank</span>
         </div>
-        <a href="#" class="active">
+        <a href="{% url 'Manager' %}" class="active">
             <i class="fas fa-tachometer-alt"></i> <span>Manager Dashboard</span>
         </a>
-        <a href="#">
-            <i class="fas fa-money-bill-wave"></i> <span>Loan Management</span>
-        </a>
-        <a href="#">
-            <i class="fas fa-exchange-alt"></i> <span>Transactions</span>
-        </a>
-        <a href="#">
+        <a href="{% url 'Customers management' %}">
             <i class="fas fa-users"></i> <span>Customer Management</span>
         </a>
         <a href="#">
@@ -765,20 +766,24 @@
             const sidebar = document.getElementById('sidebar');
             const sidebarToggle = document.getElementById('sidebarToggle');
             let isSidebarOpen = false;
-        
-            sidebarToggle.addEventListener('click', () => {
+
+            function toggleSidebar() {
                 sidebar.classList.toggle('hidden');
                 isSidebarOpen = !isSidebarOpen;
-            });
-        
+                // Toggle visibility of the button
+                sidebarToggle.style.opacity = isSidebarOpen ? "0" : "1";
+                sidebarToggle.style.visibility = isSidebarOpen ? "hidden" : "visible";
+            }
+
+            sidebarToggle.addEventListener('click', toggleSidebar);
+
             document.addEventListener('click', (e) => {
                 if (
                     isSidebarOpen &&
                     !sidebar.contains(e.target) &&
                     !sidebarToggle.contains(e.target)
                 ) {
-                    sidebar.classList.add('hidden');
-                    isSidebarOpen = false;
+                    toggleSidebar(); // Use the same function for consistency
                 }
             });
 

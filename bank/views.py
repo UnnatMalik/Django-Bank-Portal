@@ -14,7 +14,7 @@ from .models import Loan, User_reg , Transactions , Supports, BillPayment
 from django.contrib.auth import login , logout , authenticate
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.views.decorators.csrf import csrf_exempt
-from django.contrib.auth.models import User
+from django.contrib.auth.models import User, Group
 from django.contrib import messages
 from django.core.mail import BadHeaderError, send_mail, EmailMessage
 from reportlab.lib.pagesizes import letter
@@ -123,29 +123,12 @@ def support(request):
         Name = request.POST['name']
         email = request.POST['email']
         issue = request.POST['issue']
-        support = Supports.objects.create(name=Name,email=email,issue=issue)
-        support.save()
-        if Name and email and issue :
-            genai.configure(api_key="")
-            model = genai.GenerativeModel(
-                "gemini-1.5-flash", 
-                system_instruction=f"""
-                You are a Customer Service agent at CHD-BANK. 
-                Reply to {Name}'s issue in a polite and professional manner. 
-                Format your response as a HTML email with a branded CHD-BANK template.
-                this is bank logo https://clipartcraft.com/images/bank-logo-icon-9.png .
-                this is the customer care number xxxxxxxxx.
-                Note : just generate the HTML response and send it to the customer and don't generate anything else in the response .
-                """
-                )
-            reply = model.generate_content(issue)
-            try :
-                email_message = EmailMessage(subject="Support Request",body=reply.text,from_email=settings.EMAIL_HOST_USER,to=[email,])
-                email_message.content_subtype = "html"  # Set email format to HTML
-                email_message.send()
-                messages.success(request,"Support request submitted successfully")
-            except BadHeaderError:
-                messages.error(request,"Invalid Header")
+        try :   
+            support = Supports.objects.create(name=Name,email=email,issue=issue)
+            support.save()
+            messages.success(request,"Support request submitted successfully")
+        except Exception as e:
+                messages.error(request,"An error occurred while submitting the support request")
                 return redirect("support page")
 
     return render(request,'./support.html')
@@ -306,7 +289,9 @@ def sign_up(request):
             messages.error(request,"Username exists")
             return redirect("Sign-up")
         else:
-                user = User.objects.create(username=username,password=password)
+                user = User.objects.create(username=username,password=password,)
+                user_group = Group.objects.get(name="User")
+                user.groups.add(user_group)
                 User_reg.objects.create(user=user,account_number=ac_number,phone=phone,email=Email,account_type=ac_type,gender=gender,image=Photo,address=address,Pan=pan,aadhaar=Aadhaar,DoB=dob)
                 login(request,user)
                 messages.success(request,"Your account was successfully created!!")
