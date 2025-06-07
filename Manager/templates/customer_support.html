@@ -529,105 +529,40 @@
             border-color: #9ec5fe;
         }
 
-        .tool-button.ai-active {
-            background: #e3f2fd;
-            color: #0d6efd;
-            border-color: #9ec5fe;
-            position: relative;
-        }
-
-        .tool-button.ai-active::after {
-            content: '';
-            position: absolute;
-            bottom: -2px;
-            left: 0;
-            width: 100%;
-            height: 2px;
-            background: #0d6efd;
-        }
-
-        .ai-suggestion-panel {
-            display: none;
-            opacity: 0;
-            transform: translateY(-20px);
-            transition: opacity 0.3s ease, transform 0.3s ease;
-        }
-
-        .ai-suggestion-panel.active {
-            display: block;
-            opacity: 1;
-            transform: translateY(0);
-        }
-
-        @media (max-width: 768px) {
-            .mail-tools {
-                flex-wrap: wrap;
-            }
-            
-            .tool-button {
-                flex: 1;
-                justify-content: center;
-                min-width: 120px;
-            }
-        }
-
-        .original-query {
-            background-color: #f8f9fa;
-            border: 1px solid #dee2e6;
-            border-radius: 4px;
-            padding: 15px;
-            margin-bottom: 20px;
-        }
-
-        .query-header {
+        .tool-button.ai-toggle {
+            background: #6f42c1;
+            color: white;
             display: flex;
-            justify-content: space-between;
-            margin-bottom: 10px;
-            color: #6c757d;
-            font-size: 14px;
-        }
-
-        .query-content {
-            color: #212529;
-            line-height: 1.5;
-            white-space: pre-line;
-        }
-
-        .mail-composer {
-            flex: 1;
-            padding: 15px;
-            border: 1px solid #dee2e6;
-            border-radius: 4px;
-            resize:none;
-            margin-bottom: 20px;
-            min-height: 200px;
-            width: 100%;
-        }
-
-        .mail-footer {
-            display: flex;
-            justify-content: space-between;
             align-items: center;
-            padding-top: 15px;
-            border-top: 1px solid #dee2e6;
+            gap: 8px;
+            transition: all 0.3s ease;
         }
 
-        .signature-selector select {
-            padding: 8px 12px;
-            border: 1px solid #dee2e6;
-            border-radius: 4px;
-            background-color: #fff;
+        .tool-button.ai-toggle:hover {
+            background: #563d7c;
         }
 
-        .mail-actions {
-            display: flex;
-            gap: 15px;
-            align-items: center;
+        .tool-button.ai-toggle.active {
+            background: #563d7c;
+            animation: pulse 1.5s infinite;
         }
 
-        .action-buttons {
-            display: flex;
-            gap: 10px;
+        .ai-toggle i {
+            transition: transform 0.3s ease;
+        }
+
+        .ai-toggle.active i {
+            animation: spin 2s linear infinite;
+        }
+
+        @keyframes spin {
+            100% { transform: rotate(360deg); }
+        }
+
+        @keyframes pulse {
+            0% { box-shadow: 0 0 0 0 rgba(111, 66, 193, 0.4); }
+            70% { box-shadow: 0 0 0 10px rgba(111, 66, 193, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(111, 66, 193, 0); }
         }
 
         /* Responsive Grid Breakpoints */
@@ -763,6 +698,26 @@
         .request-list, .conversation-messages {
             -webkit-overflow-scrolling: touch;
         }
+
+        .mail-composer {
+            width: 100%;
+            min-height: 250px; /* Increased height */
+            padding: 15px;
+            border: 1px solid #dee2e6;
+            border-radius: 4px;
+            resize: vertical;
+            font-size: 14px;
+            line-height: 1.6;
+            margin-top: 10px;
+            margin-bottom: 15px;
+            transition: border-color 0.3s ease;
+        }
+
+        .mail-composer:focus {
+            outline: none;
+            border-color: #86b7fe;
+            box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25);
+        }
     </style>
 </head>
 <body>
@@ -775,17 +730,14 @@
             <img src="https://clipartcraft.com/images/bank-logo-icon-9.png" alt="CHD-BANK Logo">
             <span>CHD Bank</span>
         </div>
-        <a href="#" class="active">
+        <a href="{% url 'Customer support' %}" class="active">
             <i class="fas fa-headset"></i> <span>Support Requests</span>
         </a>
-        <a href="#">
+        <a href="{% url 'Manager' %}">
             <i class="fas fa-tachometer-alt"></i> <span>Manager Dashboard</span>
         </a>
-        <a href="#">
+        <a href="{% url 'Customers management' %}">
             <i class="fas fa-users"></i> <span>Customer Management</span>
-        </a>
-        <a href="#">
-            <i class="fas fa-file-alt"></i> <span>Reports</span>
         </a>
         <a href="#">
             <i class="fas fa-shield-alt"></i> <span>Security & Logs</span>
@@ -831,19 +783,11 @@
         <div class="filter-bar">
             <select id="statusFilter">
                 <option value="all">All Statuses</option>
-                <option value="new">New</option>
                 <option value="pending">Pending</option>
                 <option value="resolved">Resolved</option>
-                <option value="urgent">Urgent</option>
+                <option value="urgent">Closed</option>
             </select>
-            <select id="categoryFilter">
-                <option value="all">All Categories</option>
-                <option value="account">Account Issues</option>
-                <option value="transaction">Transaction Problems</option>
-                <option value="loan">Loan Inquiries</option>
-                <option value="card">Card Services</option>
-                <option value="tech">Technical Support</option>
-            </select>
+            
             <div class="search-input">
                 <input type="text" placeholder="Search requests by customer name, ID or content...">
                 <button class="clear-search">x</button>
@@ -919,21 +863,17 @@
                                 <i class="fas fa-reply"></i> Compose Response
                             </div>
                             <div class="mail-tools">
-                                <button type="button" class="tool-button" id="aiAssist">
-                                    <i class="fas fa-robot"></i> AI Assist
-                                    <span class="ai-status">(Off)</span>
-                                </button>
                                 <button type="button" class="tool-button" id="loadTemplate">
                                     <i class="fas fa-file-alt"></i> Templates
+                                </button>
+                                <button type="button" class="tool-button ai-toggle" id="aiToggle">
+                                    <i class="fas fa-robot"></i> AI Response
                                 </button>
                                 <label for="attachments" class="tool-button">
                                     <i class="fas fa-paperclip"></i> Attach
                                     <input type="file" id="attachments" name="attachments[]" multiple 
                                         style="display: none;" accept=".pdf,.doc,.docx,.jpg,.png">
                                 </label>
-                                <button type="button" class="tool-button" id="translate">
-                                    <i class="fas fa-language"></i> Translate
-                                </button>
                             </div>
                             <textarea class="mail-composer" name="response_content" id="responseContent" 
                                 placeholder="Type your response here..." required></textarea>
@@ -953,33 +893,6 @@
                             </div>
                         </div>
                     </form>
-
-                    <div class="ai-suggestion-panel" id="aiSuggestionPanel">
-                        <div class="suggestion-header">
-                            <div class="suggestion-title">
-                                <i class="fas fa-robot"></i> AI Assistant Suggestion
-                            </div>
-                            <div class="suggestion-actions">
-                                <button id="refreshSuggestion">Refresh</button>
-                                <button id="closeSuggestion">Close</button>
-                            </div>
-                        </div>
-                        <div class="suggestion-content">
-                            Thank you for providing the error code, Mr. Sharma. I've checked our system status, and there was a scheduled maintenance last night that might be affecting some users. The error code ERR-4023 typically indicates a session validation issue. Let me help you resolve this:
-
-                            1. Please clear your browser cache and cookies
-                            2. Close all browser windows completely
-                            3. Wait for 5 minutes before attempting to login again
-                            4. Use the direct login URL: https://secure.chdbank.com/login
-
-                            If you're still experiencing issues after these steps, we can reset your account access from our end. Would you like me to proceed with that?
-                        </div>
-                        <div class="categories-tag">
-                            <span class="category-tag">Technical Issue</span>
-                            <span class="category-tag">Login Problem</span>
-                            <span class="category-tag">High Priority</span>
-                        </div>
-                    </div>
                 </div>
                 <button class="scroll-top" id="scrollTop">
                     <i class="fas fa-arrow-up"></i>
@@ -1005,123 +918,7 @@
                 sidebar.classList.toggle('hidden');
             });
 
-            // AI Assistant Integration
-            const aiAssistBtn = document.getElementById('aiAssist');
-            const aiSuggestionPanel = document.getElementById('aiSuggestionPanel');
-            const responseTextarea = document.getElementById('responseContent');
-            let isAIAssistActive = false;
-
-            aiAssistBtn.addEventListener('click', async () => {
-                isAIAssistActive = !isAIAssistActive;
-                aiAssistBtn.classList.toggle('ai-active');
-                aiAssistBtn.querySelector('.ai-status').textContent = isAIAssistActive ? '(On)' : '(Off)';
-                
-                if (isAIAssistActive) {
-                    // Show loading state
-                    showLoadingState();
-                    try {
-                        await fetchAIResponse();
-                    } catch (error) {
-                        showError(error);
-                    }
-                } else {
-                    aiSuggestionPanel.classList.remove('active');
-                }
-            });
-
-            async function fetchAIResponse() {
-                const originalQuery = document.getElementById('originalQuery').textContent;
-                const customerName = document.querySelector('.customer-name').textContent;
-                const ticketId = document.querySelector('input[name="ticket_id"]').value;
-
-                try {
-                    const response = await fetch('/manager/get-ai-response/', {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                            'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
-                        },
-                        body: JSON.stringify({
-                            query: originalQuery,
-                            customer_name: customerName,
-                            ticket_id: ticketId
-                        })
-                    });
-
-                    if (!response.ok) {
-                        throw new Error('Network response was not ok');
-                    }
-
-                    const data = await response.json();
-                    updateAISuggestionPanel(data);
-                } catch (error) {
-                    showError(error);
-                }
-            }
-
-            function showLoadingState() {
-                aiSuggestionPanel.innerHTML = `
-                    <div class="suggestion-header">
-                        <div class="suggestion-title">
-                            <i class="fas fa-spinner fa-spin"></i> Generating Response...
-                        </div>
-                    </div>`;
-                aiSuggestionPanel.classList.add('active');
-            }
-
-            function updateAISuggestionPanel(data) {
-                aiSuggestionPanel.innerHTML = `
-                    <div class="suggestion-header">
-                        <div class="suggestion-title">
-                            <i class="fas fa-robot"></i> AI Assistant Suggestion
-                        </div>
-                        <div class="suggestion-actions">
-                            <button onclick="regenerateResponse()">Regenerate</button>
-                            <button onclick="applyResponse()">Apply</button>
-                            <button onclick="closeAIPanel()">Close</button>
-                        </div>
-                    </div>
-                    <div class="suggestion-content">${data.response}</div>
-                    <div class="categories-tag">
-                        ${data.categories.map(category => 
-                            `<span class="category-tag">${category}</span>`
-                        ).join('')}
-                    </div>`;
-            }
-
-            function showError(error) {
-                aiSuggestionPanel.innerHTML = `
-                    <div class="suggestion-header">
-                        <div class="suggestion-title text-danger">
-                            <i class="fas fa-exclamation-circle"></i> Error
-                        </div>
-                    </div>
-                    <div class="suggestion-content text-danger">
-                        Failed to generate AI response. Please try again.
-                    </div>`;
-            }
-
-            // Make these functions available globally
-            window.regenerateResponse = async function() {
-                showLoadingState();
-                try {
-                    await fetchAIResponse();
-                } catch (error) {
-                    showError(error);
-                }
-            };
-
-            window.applyResponse = function() {
-                const aiContent = aiSuggestionPanel.querySelector('.suggestion-content').textContent;
-                responseTextarea.value = aiContent;
-            };
-
-            window.closeAIPanel = function() {
-                aiSuggestionPanel.classList.remove('active');
-                aiAssistBtn.classList.remove('ai-active');
-                aiAssistBtn.querySelector('.ai-status').textContent = '(Off)';
-                isAIAssistActive = false;
-            };
+       
 
             // Touch event handling
             let touchStartX = 0;
@@ -1209,11 +1006,80 @@
             const requestItems = document.querySelectorAll('.request-item');
             const conversationPanels = document.querySelectorAll('.conversation-panel');
 
+            // Function to initialize AI response functionality for a panel
+            function initializeAIResponse(panel) {
+                const aiToggle = panel.querySelector('.ai-toggle');
+                const responseContent = panel.querySelector('#responseContent');
+                
+                if (!aiToggle || !responseContent) return;
+                
+                // Remove existing listener to avoid duplicates
+                const newAiToggle = aiToggle.cloneNode(true);
+                aiToggle.parentNode.replaceChild(newAiToggle, aiToggle);
+                
+                newAiToggle.addEventListener('click', async function() {
+                    this.classList.toggle('active');
+                    
+                    if (this.classList.contains('active')) {
+                        // Store original content
+                        responseContent.dataset.originalContent = responseContent.value;
+                        
+                        // Show loading state
+                        this.disabled = true;
+                        responseContent.disabled = true;
+                        responseContent.value = 'Generating AI response...';
+                        
+                        try {
+                            // Get query from either originalQuery element or the active request item
+                            let query = '';
+                            const originalQuery = panel.querySelector('.query-content');
+                            if (originalQuery) {
+                                query = originalQuery.textContent.trim();
+                            }
+
+                            if (!query) {
+                                throw new Error('No query content found');
+                            }
+
+                            const response = await fetch('/manager/generate_ai_response/', {
+                                method: 'POST',
+                                headers: {
+                                    'Content-Type': 'application/json',
+                                    'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+                                },
+                                body: JSON.stringify({ query: query })
+                            });
+
+                            if (response.ok) {
+                                const data = await response.json();
+                                responseContent.value = data.response;
+                            } else {
+                                throw new Error('Failed to generate AI response');
+                            }
+                        } catch (error) {
+                            console.error('Error:', error);
+                            responseContent.value = 'Failed to generate AI response. Please try again.';
+                            this.classList.remove('active');
+                        } finally {
+                            this.disabled = false;
+                            responseContent.disabled = false;
+                        }
+                    } else {
+                        // Restore original content if it exists
+                        if (responseContent.dataset.originalContent) {
+                            responseContent.value = responseContent.dataset.originalContent;
+                        }
+                    }
+                });
+            }
+
+            // Initialize AI response for the first active panel
+            initializeAIResponse(conversationPanels[0]);
+
             requestItems.forEach(item => {
                 item.addEventListener('click', function() {
                     const supportId = this.dataset.supportId;
-                    console.log('Clicked support ID:', supportId); // Debug line
-
+                    
                     // Remove active class from all items
                     requestItems.forEach(i => i.classList.remove('active'));
                     // Add active class to clicked item
@@ -1222,15 +1088,14 @@
                     // Hide all conversation panels
                     conversationPanels.forEach(panel => {
                         panel.classList.add('d-none');
-                        console.log('Panel ID:', panel.id); // Debug line
                     });
 
                     // Show selected conversation panel
                     const selectedPanel = document.getElementById(`conversation-${supportId}`);
                     if (selectedPanel) {
                         selectedPanel.classList.remove('d-none');
-                    } else {
-                        console.error('Panel not found for support ID:', supportId);
+                        // Initialize AI response for newly shown panel
+                        initializeAIResponse(selectedPanel);
                     }
                 });
             });
@@ -1259,6 +1124,177 @@
                         console.error('Error resolving support request:', error);
                     }
                 });
+            });
+
+            // Filter requests by status
+            const statusFilter = document.getElementById('statusFilter');
+            statusFilter.addEventListener('change', function() {
+                const selectedStatus = this.value.toUpperCase();
+                
+                requestItems.forEach(item => {
+                    const statusBadge = item.querySelector('.badge');
+                    const itemStatus = statusBadge.textContent.trim().toUpperCase();
+                    
+                    if (selectedStatus === 'ALL' || itemStatus === selectedStatus) {
+                        item.style.display = '';
+                    } else {
+                        item.style.display = 'none';
+                    }
+                });
+
+                // Show "No requests found" message if all items are hidden
+                const visibleItems = Array.from(requestItems).filter(item => 
+                    item.style.display !== 'none'
+                );
+
+                const existingMessage = document.querySelector('.no-requests-message');
+                if (existingMessage) {
+                    existingMessage.remove();
+                }
+
+                if (visibleItems.length === 0) {
+                    const messageDiv = document.createElement('div');
+                    messageDiv.className = 'no-requests-message';
+                    messageDiv.style.cssText = `
+                        padding: 20px;
+                        text-align: center;
+                        color: #6c757d;
+                        font-style: italic;
+                    `;
+                    messageDiv.textContent = `No ${selectedStatus.toLowerCase()} requests found`;
+                    document.querySelector('.request-list').appendChild(messageDiv);
+                }
+            });
+
+            // Search functionality
+            const searchInput = document.querySelector('.search-input input');
+            const clearSearchBtn = document.querySelector('.clear-search');
+
+            function performSearch() {
+                const searchTerm = searchInput.value.toLowerCase();
+                let hasResults = false;
+
+                requestItems.forEach(item => {
+                    const customerName = item.querySelector('.request-title').textContent.toLowerCase();
+                    const requestContent = item.querySelector('.request-preview').textContent.toLowerCase();
+                    const customerDetails = item.querySelector('.request-customer').textContent.toLowerCase();
+
+                    if (customerName.includes(searchTerm) || 
+                        requestContent.includes(searchTerm) || 
+                        customerDetails.includes(searchTerm)) {
+                        item.style.display = '';
+                        hasResults = true;
+                    } else {
+                        item.style.display = 'none';
+                    }
+                });
+
+                // Handle no results message
+                const existingMessage = document.querySelector('.no-results-message');
+                if (existingMessage) {
+                    existingMessage.remove();
+                }
+
+                if (!hasResults && searchTerm) {
+                    const messageDiv = document.createElement('div');
+                    messageDiv.className = 'no-results-message';
+                    messageDiv.style.cssText = `
+                        padding: 20px;
+                        text-align: center;
+                        color: #6c757d;
+                        font-style: italic;
+                    `;
+                    messageDiv.textContent = `No requests found matching "${searchTerm}"`;
+                    document.querySelector('.request-list').appendChild(messageDiv);
+                }
+            }
+
+            // Search input event listener with debouncing
+            let searchTimeout;
+            searchInput.addEventListener('input', function() {
+                clearTimeout(searchTimeout);
+                searchTimeout = setTimeout(performSearch, 300);
+            });
+
+            // Clear search functionality
+            clearSearchBtn.addEventListener('click', function() {
+                searchInput.value = '';
+                performSearch();
+                searchInput.focus();
+            });
+
+            // Clear search on Escape key
+            searchInput.addEventListener('keydown', function(e) {
+                if (e.key === 'Escape') {
+                    searchInput.value = '';
+                    performSearch();
+                    searchInput.blur();
+                }
+            });
+
+            // AI Response Toggle functionality
+            const aiToggle = document.getElementById('aiToggle');
+            const responseContent = document.getElementById('responseContent');
+
+            aiToggle.addEventListener('click', async function() {
+                this.classList.toggle('active');
+                
+                if (this.classList.contains('active')) {
+                    // Store original content
+                    responseContent.dataset.originalContent = responseContent.value;
+                    
+                    // Show loading state
+                    this.disabled = true;
+                    responseContent.disabled = true;
+                    responseContent.value = 'Generating AI response...';
+                    
+                    try {
+                        // Get query from either originalQuery element or the active request item
+                        let query = '';
+                        const originalQuery = document.getElementById('originalQuery');
+                        if (originalQuery) {
+                            query = originalQuery.textContent.trim();
+                        } else {
+                            const activeRequest = document.querySelector('.request-item.active');
+                            if (activeRequest) {
+                                const requestPreview = activeRequest.querySelector('.request-preview');
+                                query = requestPreview ? requestPreview.textContent.trim() : '';
+                            }
+                        }
+
+                        if (!query) {
+                            throw new Error('No query content found');
+                        }
+
+                        const response = await fetch('/manager/generate_ai_response/', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+                            },
+                            body: JSON.stringify({ query: query })
+                        });
+
+                        if (response.ok) {
+                            const data = await response.json();
+                            responseContent.value = data.response;
+                        } else {
+                            throw new Error('Failed to generate AI response');
+                        }
+                    } catch (error) {
+                        console.error('Error:', error);
+                        responseContent.value = 'Failed to generate AI response. Please try again.';
+                        this.classList.remove('active');
+                    } finally {
+                        this.disabled = false;
+                        responseContent.disabled = false;
+                    }
+                } else {
+                    // Restore original content if it exists
+                    if (responseContent.dataset.originalContent) {
+                        responseContent.value = responseContent.dataset.originalContent;
+                    }
+                }
             });
         });
     </script>

@@ -667,7 +667,7 @@ def Chatbot(request):
         user_message = data['message']
         print(user_message)
         genai.configure(api_key="")
-        model = genai.GenerativeModel("gemini-1.5-flash", system_instruction=f"You are a Bank Manager at CHD-BANK, and you are talking to a customer who wants to know about the bank and its services. these are some things you can keep in mind {context}")
+        model = genai.GenerativeModel("gemini-2.0-flash", system_instruction=f"You are a Bank Manager at CHD-BANK, and you are talking to a customer who wants to know about the bank and its services. these are some things you can keep in mind {context}")
         reply = model.generate_content(user_message)
         return JsonResponse({'reply': reply.text})
 

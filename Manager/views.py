@@ -1,14 +1,20 @@
-from datetime import timezone
+import json
 from django.http import JsonResponse
 from django.shortcuts import get_object_or_404, render, redirect
-from bank.models import Loan, User_reg , Transactions , Supports, BillPayment
+from bank.models import Loan, User_reg, Transactions, Supports, BillPayment
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.contrib import messages
 from django.contrib.auth import logout
-from django.core.mail import BadHeaderError, send_mail, EmailMessage
+from django.core.mail import BadHeaderError, EmailMessage
 from BankPortal import settings
 from django.template.loader import render_to_string
-from django.utils.html import strip_tags
+import google.generativeai as genai 
+from django.views.decorators.csrf import csrf_exempt
+import logging
+from django.conf import settings
+
+# Configure logging
+logger = logging.getLogger(__name__)
 
 def is_manager(user):
     return user.groups.filter(name='Manager').exists()
@@ -105,21 +111,18 @@ def Customer(request, user_id):
     return render(request,'customer.html',context)
 
 def support_page(request):
-    customer_support = Supports.objects.all()
+    customer_support = Supports.objects.all().order_by('timestamp')
     context = {
         'customer_supports': customer_support,
     }
     return render(request, 'customer_support.html', context)
 
-def reslove_support(request,id):
+def resolve_support(request,id):
     if request.method == 'POST':
         support = get_object_or_404(Supports, id=id)
         support.support_status = 'RESOLVED'
-        # support.resolved_by = request.user
-        # support.resolved_at = timezone.now()
         support.save()
         body = request.POST.get('response_content')
-        print(body)
         context = {
             'support': support,
             'body': body,
@@ -127,10 +130,14 @@ def reslove_support(request,id):
         }
 
         html_message = render_to_string('email_template.html', context)
-        plain_text = strip_tags(html_message)
         try:
-            email_message = EmailMessage(subject=f"Support Request for {support.issue}",body=html_message,from_email=settings.EMAIL_HOST_USER,to=[support.email,])
-            email_message.content_subtype = "html"  # Set email format to HTML
+            email_message = EmailMessage(
+                subject=f"Support Request for {support.issue}",
+                body=html_message,
+                from_email=settings.EMAIL_HOST_USER,
+                to=[support.email,]
+            )
+            email_message.content_subtype = "html"
             email_message.send()
             messages.success(request, 'Support request resolved successfully')
         except BadHeaderError:
@@ -139,3 +146,92 @@ def reslove_support(request,id):
         
         return redirect('Customer support')
     return JsonResponse({'status': 'error'}, status=405)
+
+def AI_response(query, customer_name):
+    try:
+        services = [
+            "Transfer Funds",
+            "Deposit Funds",
+            "Withdraw Funds",
+            "Support",
+            "Transaction history download"
+        ]
+        context = {
+            "services": services,
+            "account openning": "name,phone,email,account_number,account_type,address,pan,aadhaar,dob",
+            "Account types" : ["Savings","Current","Business"]
+        }
+        
+        # Configure Gemini AI
+        try:
+            genai.configure(api_key="")
+        except Exception as config_error:
+            logger.error(f"Failed to configure Gemini AI: {str(config_error)}")
+            raise Exception("Failed to initialize AI service")
+
+        try:
+            model = genai.GenerativeModel(
+                model_name="gemini-2.0-flash",  # Updated to correct model name
+                system_instruction=f"You are a Bank Manager at CHD-BANK, and you are talking to a customer who wants to know about the bank and its services. these are some things you can keep in mind {context}"
+            )
+        except Exception as model_error:
+            logger.error(f"Failed to create Gemini model: {str(model_error)}")
+            raise Exception("Failed to initialize AI model")
+
+        try:
+            response = model.generate_content(query)
+            return response.text
+        except Exception as generate_error:
+            logger.error(f"Failed to generate content: {str(generate_error)}")
+            raise Exception("Failed to generate AI response")
+
+    except Exception as e:
+        logger.error(f"AI_response error: {str(e)}")
+        raise
+
+@csrf_exempt
+def generate_ai_response(request):
+    if request.method == 'POST':
+        try:
+            data = json.loads(request.body)
+            query = data.get('query', '')
+            
+            if not query:
+                return JsonResponse({'error': 'Query is required'}, status=400)
+            
+            logger.info(f"Processing AI response for query: {query[:100]}...")  # Log truncated query
+            
+            try:
+                ai_response = AI_response(query, "Customer")
+                return JsonResponse({
+                    'response': ai_response,
+                    'status': 'success'
+                })
+            except Exception as ai_error:
+                logger.error(f"AI service error: {str(ai_error)}")
+                # Return a more user-friendly error message
+                return JsonResponse({
+                    'error': 'Unable to generate response at the moment. Please try again.',
+                    'status': 'error'
+                }, status=500)
+                
+        except json.JSONDecodeError as json_error:
+            logger.error(f"JSON decode error: {str(json_error)}")
+            return JsonResponse({'error': 'Invalid JSON data'}, status=400)
+        except Exception as e:
+            logger.error(f"Unexpected error in generate_ai_response: {str(e)}")
+            return JsonResponse({
+                'error': 'An unexpected error occurred',
+                'status': 'error'
+            }, status=500)
+            
+    return JsonResponse({'error': 'Invalid request method'}, status=405)
+
+def generate_customer_support_response(query):
+    try:
+        return AI_response(query, "Customer")
+    except Exception:
+        greeting = "Dear valued customer,\n\n"
+        context = "Thank you for reaching out to CHD Bank customer support. I understand your concern regarding "
+        closing = "\n\nIf you have any further questions, please don't hesitate to ask.\n\nBest regards,\nCHD Bank Customer Support"
+        return f"{greeting}{context}{query}.{closing}"
