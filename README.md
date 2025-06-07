@@ -31,7 +31,7 @@ for functionality to simulate real-world banking operations and Django for back-
 
 ## New Updates
 
-🤖 Now the portal is Equipped with a Chat-Bot (Gemini 1.5 Flash). </br>
+🤖 Now the portal is Equipped with a Chat-Bot (Gemini 2.0 Flash). </br>
 📤 The portal Also has AI-Assistant to deal with the users queries via Mails.</br>
 👨🏻‍💼 The Manager side is now ready with users having opperunity to add Bill-payments as well as apply for Loan
 
