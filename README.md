@@ -49,23 +49,24 @@ This technologies used in creation of the bank portal are as follow :
 ###
 
 <div align="left">
-  <img src="https://cdn.simpleicons.org/sqlite/003B57" height="40" alt="sqlite logo"  />
+  <img src="https://cdn.simpleicons.org/sqlite/003B57" height="40" width="40" alt="sqlite logo"  />
   <img width="12" />
-  <img src="https://skillicons.dev/icons?i=py" height="40" alt="python logo"  />
+  <img src="https://skillicons.dev/icons?i=py" height="10" alt="python logo"  />
   <img width="12" />
-  <img src="https://skillicons.dev/icons?i=django" height="40" alt="django logo"  />
+  <img src="https://skillicons.dev/icons?i=django" height="10" alt="django logo"  />
   <img width="12" />
-  <img src="https://avatars.githubusercontent.com/u/215947?s=200&v=4" height="40" alt="Matplotlib"/>
+  <img src="https://avatars.githubusercontent.com/u/215947?s=50&v=4" height="10" alt="Matplotlib"/>
   <img width="12" />
-  <img src="https://skillicons.dev/icons?i=html" height="40" alt="html5 logo"  />
+  <img src="https://skillicons.dev/icons?i=html" height="10" alt="html5 logo"  />
   <img width="12" />
-  <img src="https://skillicons.dev/icons?i=css" height="40" alt="css3 logo"  />
+  <img src="https://skillicons.dev/icons?i=css" height="10" alt="css3 logo"  />
   <img width="12" />
-  <img src="https://skillicons.dev/icons?i=bootstrap" height="40" alt="bootstrap logo"  />
+  <img src="https://skillicons.dev/icons?i=bootstrap" height="10" alt="bootstrap logo"  />
   <img width="12" />
-  <img src="https://skillicons.dev/icons?i=js" height="40" alt="javascript logo"  />
+  <img src="https://skillicons.dev/icons?i=js" height="10" alt="javascript logo"  />
   <img width="12" />
-  <img src="https://registry.npmmirror.com/@lobehub/icons-static-png/1.24.0/files/dark/gemini-color.png" height="40" alt="Gemini" />
+  <img src="https://registry.npmmirror.com/@lobehub/icons-static-png/1.24.0/files/dark/gemini-color.png" height="40" width="40" alt="Gemini" />
+  <img width="12" />
 </div>
 
 ###
