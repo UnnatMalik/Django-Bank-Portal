@@ -6,7 +6,7 @@ SECRET_KEY = 'django-insecure-l&38c6p1^6se5s)tag_^7^sc1y(o%*z%z=wjrpmw&3tig3)x4&
 
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['https://django-bank-portal-ykyr.onrender.com']
 
 
 INSTALLED_APPS = [
